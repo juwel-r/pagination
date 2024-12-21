@@ -32,6 +32,6 @@
 .pagination button{
     margin-right:12px;
 }
-.selectedPage{
+.selected{
     background-color: orange;
 }

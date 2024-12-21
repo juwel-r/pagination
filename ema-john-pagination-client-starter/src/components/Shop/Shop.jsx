@@ -8,18 +8,16 @@ import Cart from "../Cart/Cart";
 import Product from "../Product/Product";
 import "./Shop.css";
 import { Link, useLoaderData } from "react-router-dom";
-import { useActionState } from "react";
 
 const Shop = () => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
+
   const { totalItems } = useLoaderData();
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-console.log(currentPage)
-  const totalPage = Math.ceil(totalItems / itemsPerPage);
+  const totalPage = Math.ceil((totalItems || 0) / (itemsPerPage ||1));
   const pages = [...Array(totalPage).keys()];
-  console.log(pages);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const changePageHandler = (e) => {
     setItemsPerPage(parseInt(e.target.value));
@@ -27,10 +25,10 @@ console.log(currentPage)
   };
 
   useEffect(() => {
-    fetch("http://localhost:5000/products")
+    fetch(`http://localhost:5000/products?page=${currentPage}&size=${itemsPerPage}`)
       .then((res) => res.json())
       .then((data) => setProducts(data));
-  }, []);
+  }, [currentPage, itemsPerPage]);
 
   useEffect(() => {
     const storedCart = getShoppingCart();
@@ -51,7 +49,6 @@ console.log(currentPage)
     // step 5: set the cart
     setCart(savedCart);
   }, [products]);
-
   const handleAddToCart = (product) => {
     // cart.push(product); '
     let newCart = [];
@@ -96,11 +93,29 @@ console.log(currentPage)
         </Cart>
       </div>
       <div className="pagination">
+        <button
+          onClick={() =>
+            currentPage > 0 ? setCurrentPage(currentPage - 1) : ""
+          }
+        >
+          Previous
+        </button>
         {pages.map((page, index) => (
-          <button className={currentPage === page && "selected"}>
-            {page + 1}
+          <button
+          key={index}
+            className={currentPage === page && "selected"}
+            onClick={() => setCurrentPage(page)}
+          >
+            {page }
           </button>
-        ))}
+        ))}{" "}
+        <button
+          onClick={() =>
+            currentPage < totalPage -1 ? setCurrentPage(currentPage + 1) : ""
+          }
+        >
+          Next
+        </button>
         <select onChange={changePageHandler}>
           <option value="10">Select</option>
           <option value="5">5</option>
